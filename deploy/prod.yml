@@ -17,6 +17,6 @@ spec:
         - name: MELDING_TYPE_ID
           value: <replace>
         - name: DATABASE_JDBC_URL
-          value: "jdbc:postgresql://b27dbvl023.preprod.local:5432/spare"
+          value: "jdbc:postgresql://a01dbvl027.adeo.no:5432/spare"
         - name: VAULT_MOUNTPATH
           value: postgresql/prod-fss/
