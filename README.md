@@ -2,8 +2,8 @@
 (basert på sparker-feriepenger)
 ## Beskrivelse
 
-Finner utbetalings-events og legger melding om utbetaling av feriepenger på rapid.
-Sparker-feriepenger kjører som en job i Kubernetes
+Finner events av en type og legger melding på rapid.
+Sparker-alt kjører som en job i Kubernetes
 
 ## Kjøre jobben
 1. Finn ønsket Docker-image fra feks output fra GitHub Actions

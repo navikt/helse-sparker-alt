@@ -56,7 +56,7 @@ internal fun sendMeldinger(
     eventName: String,
     topic: String
 ) {
-    val logger = LoggerFactory.getLogger("no.nav.helse.sparker.feriepenger")
+    val logger = LoggerFactory.getLogger("sparker")
     val startMillis = System.currentTimeMillis()
 
     val meldinger = meldingDao.hentMeldinger(meldingTypeId)

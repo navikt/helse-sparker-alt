@@ -1,109 +1,22 @@
-xapiVersion: batch/v1
-kind: Job
+apiVersion: nais.io/v1
+kind: Naisjob
 metadata:
+  labels:
+    team: tbd
   name: sparker-alt
   namespace: tbd
 spec:
-  ttlSecondsAfterFinished: 300
-  backoffLimit: 1
-  parallelism: 1
-  completions: 1
-  template:
-    spec:
-      containers:
-        - name: sparker-alt
-          image: docker.pkg.github.com/navikt/helse-sparker-alt/helse-sparker-alt:<lim inn SHA her>
-          resources:
-            requests:
-              memory: 256Mi
-              cpu: 100m
-            limits:
-              memory: 512Mi
-              cpu: 1000m
-          volumeMounts:
-            - mountPath: /var/run/secrets/nais.io/vault
-              name: vault-secrets
-              subPath: subpath/var/run/secrets/nais.io/vault
-            - mountPath: /var/run/secrets/nais.io/kafka
-              name: kafka-credentials
-              readOnly: true
-          env:
-            - name: VAULT_TOKEN_PATH
-              value: /var/run/secrets/nais.io/vault/vault_token
-            - name: KAFKA_TARGET_TOPIC
-              value: tbd.rapid.v1
-            - name: DATABASE_NAME
-              value: spare
-            - name: DATABASE_JDBC_URL
-              value: "jdbc:postgresql://b27dbvl023.preprod.local:5432/spare"
-            - name: EVENT_NAME
-              value: "<insert>"
-            - name: MELDING_TYPE_ID
-              value: "<insert>"
-            - name: VAULT_MOUNTPATH
-              value: postgresql/preprod-fss/
-            - name: KAFKA_BROKERS
-              valueFrom:
-                secretKeyRef:
-                  key: KAFKA_BROKERS
-                  name: kafka-sparke-feriepenger-nav-dev-307b5962
-            - name: KAFKA_CREDSTORE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  key: KAFKA_CREDSTORE_PASSWORD
-                  name: kafka-sparke-feriepenger-nav-dev-307b5962
-            - name: KAFKA_KEYSTORE_PATH
-              value: /var/run/secrets/nais.io/kafka/client.keystore.p12
-            - name: KAFKA_TRUSTSTORE_PATH
-              value: /var/run/secrets/nais.io/kafka/client.truststore.jks
-      imagePullSecrets:
-        - name: gpr-credentials
-      initContainers:
-        - name: vks-init
-          image: navikt/vault-sidekick:v0.3.10-d122b16
-          resources:
-            requests:
-              memory: "64Mi"
-              cpu: "100m"
-            limits:
-              memory: "128Mi"
-              cpu: "1000m"
-          volumeMounts:
-            - mountPath: /var/run/secrets/nais.io/vault
-              name: vault-secrets
-              subPath: subpath/var/run/secrets/nais.io/vault
-          args:
-            - -v=10
-            - -logtostderr
-            - -vault=https://vault.adeo.no
-            - -one-shot
-            - -save-token=/var/run/secrets/nais.io/vault/vault_token
-          env:
-            - name: VAULT_AUTH_METHOD
-              value: kubernetes
-            - name: VAULT_SIDEKICK_ROLE
-              value: sparker-alt
-            - name: VAULT_K8S_LOGIN_PATH
-              value: auth/kubernetes/preprod/fss/login
-      serviceAccount: podcreator
-      serviceAccountName: podcreator
-      volumes:
-        - name: vault-secrets
-          emptyDir:
-            medium: Memory
-        - name: kafka-credentials
-          secret:
-            defaultMode: 420
-            items:
-              - key: KAFKA_CERTIFICATE
-                path: kafka.crt
-              - key: KAFKA_PRIVATE_KEY
-                path: kafka.key
-              - key: KAFKA_CA
-                path: ca.crt
-              - key: client.keystore.p12
-                path: client.keystore.p12
-              - key: client.truststore.jks
-                path: client.truststore.jks
-            secretName: kafka-sparke-feriepenger-nav-dev-307b5962
-      restartPolicy: Never
+  image: ghcr.io/navikt/helse-sparker-alt/helse-sparker-alt:<versjon>
+  kafka:
+    pool: nav-dev
+  env:
+    - name: KAFKA_TARGET_TOPIC
+      value: <replace>
+    - name: EVENT_NAME
+      value: <replace>
+    - name: MELDING_TYPE_ID
+      value: <replace>
+    - name: DATABASE_JDBC_URL
+      value: "jdbc:postgresql://b27dbvl023.preprod.local:5432/spare"
+    - name: VAULT_MOUNTPATH
+      value: postgresql/preprod-fss/
