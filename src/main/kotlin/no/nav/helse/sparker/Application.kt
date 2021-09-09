@@ -61,7 +61,7 @@ internal fun sendMeldinger(
 
     val meldinger = meldingDao.hentMeldinger(meldingTypeId)
     meldinger.forEach {
-        producer.send(createRecord(it, topic, eventName))
+        producer.send(createRecord(it, topic, eventName)).get()
     }
 
     producer.flush()
