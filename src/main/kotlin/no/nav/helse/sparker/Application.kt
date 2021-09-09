@@ -67,7 +67,7 @@ internal fun sendMeldinger(
     producer.flush()
     producer.close()
 
-    logger.info("Sendt alle meldinger på ${(System.currentTimeMillis() - startMillis) / 1000}s")
+    logger.info("Sendt ${meldinger.size} meldinger på ${(System.currentTimeMillis() - startMillis) / 1000}s for melding id $meldingTypeId")
 }
 
 private fun createRecord(input: String, topic: String, eventName: String): ProducerRecord<String, String> {
