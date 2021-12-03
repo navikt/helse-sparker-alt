@@ -35,4 +35,5 @@ class EndToEndTest {
             assertEquals(fodselsnumre[index], event["fødselsnummer"].asText())
         }
     }
+    
 }
