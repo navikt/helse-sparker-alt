@@ -6,17 +6,19 @@ metadata:
     name: sparker-alt
     namespace: tbd
 spec:
-    image: ghcr.io/navikt/helse-sparker-alt/helse-sparker-alt:<versjon>
+    image: ghcr.io/navikt/helse-sparker-alt/helse-sparker-alt:c34540a
     kafka:
         pool: nav-prod
     env:
         - name: KAFKA_TARGET_TOPIC
-          value: <replace>
+          value: tbd.rapid.v1
         - name: EVENT_NAME
-          value: <replace>
-        - name: MELDING_TYPE_ID
-          value: <replace>
+          value: adressebeskyttelse_endret
         - name: DATABASE_JDBC_URL
-          value: "jdbc:postgresql://a01dbvl027.adeo.no:5432/spare"
+          value: "jdbc:postgresql://A01DBVL011.adeo.no:5432/spesialist"
         - name: VAULT_MOUNTPATH
           value: postgresql/prod-fss/
+        - name: DATABASE_NAME
+          value: spesialist
+    vault:
+        enabled: true

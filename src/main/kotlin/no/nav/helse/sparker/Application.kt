@@ -2,14 +2,13 @@ package no.nav.helse.sparker
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 import org.slf4j.LoggerFactory
+import java.util.*
 import kotlin.system.exitProcess
 
 val objectMapper: ObjectMapper = jacksonObjectMapper()
@@ -28,8 +27,6 @@ fun main() {
         keystorePassword = env.getValue("KAFKA_CREDSTORE_PASSWORD")
     )
     val topic = env.getValue("KAFKA_TARGET_TOPIC")
-    val eventName = env.getValue("EVENT_NAME")
-    val meldingTypeId = env.getValue("MELDING_TYPE_ID").toLong()
 
     val dataSourceBuilder = DataSourceBuilder(env)
     val dataSource = dataSourceBuilder.getDataSource()
@@ -41,8 +38,6 @@ fun main() {
     sendMeldinger(
         meldingDao,
         producer,
-        meldingTypeId,
-        eventName,
         topic
     )
 
@@ -52,26 +47,26 @@ fun main() {
 internal fun sendMeldinger(
     meldingDao: MeldingDao,
     producer: KafkaProducer<String, String>,
-    meldingTypeId: Long,
-    eventName: String,
     topic: String
 ) {
     val logger = LoggerFactory.getLogger("sparker")
     val startMillis = System.currentTimeMillis()
 
-    val meldinger = meldingDao.hentMeldinger(meldingTypeId)
+    val meldinger = meldingDao.hentMeldinger()
     meldinger.forEach {
-        producer.send(createRecord(it, topic, eventName)).get()
+        producer.send(createRecord(it, topic)).get()
     }
 
     producer.flush()
     producer.close()
 
-    logger.info("Sendt ${meldinger.size} meldinger på ${(System.currentTimeMillis() - startMillis) / 1000}s for melding id $meldingTypeId")
+    logger.info("Sendt ${meldinger.size} meldinger på ${(System.currentTimeMillis() - startMillis) / 1000}s")
 }
 
-private fun createRecord(input: String, topic: String, eventName: String): ProducerRecord<String, String> {
-    val objectNode = objectMapper.readValue<ObjectNode>(input)
-    objectNode.put("@event_name", eventName)
-    return ProducerRecord(topic, objectNode.get("fødselsnummer").asText(), objectMapper.writeValueAsString(objectNode))
+private fun createRecord(fødselsnummer: String, topic: String): ProducerRecord<String, String> {
+    val objectNode = objectMapper.createObjectNode()
+    objectNode.put("@id", UUID.randomUUID().toString())
+    objectNode.put("@event_name", "adressebeskyttelse_endret")
+    objectNode.put("fødselsnummer", fødselsnummer)
+    return ProducerRecord(topic, fødselsnummer, objectMapper.writeValueAsString(objectNode))
 }
